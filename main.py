@@ -68,17 +68,15 @@ def load_sop_chunks():
 def call_api(row):
     """Calls the Anthropic API for a single break row and returns parsed JSON."""
     prompt = (
-        f"You are a financial data analyst. Here is a trade reconciliation break: "
-
-        # add in the prompt
-        f"【SOP RULES REFERENCE】\n"
-        f"{sop_rules}\n\n"
-
+        f"You are a financial data analyst. Here are the SOP rule chunks:\n"
+        f"{sop_chunks}\n\n"
+        f"here are the reconciliation break:"
         f"trade_id: {row['trade_id']}, "
         f"amount_x: {row['amount_x']}, "
-        f"amount_y: {row['amount_y']}. "
-        f"Explain what the break_type, likely_cause, severity, and suggested_action. "
-        f"ONLY RESPOND IN JSON FOR THESE FIELDS."
+        f"amount_y: {row['amount_y']}.\n"
+        f"1. Identify which SOP rule chunk applies to this break.\n"
+        f"2. Explain what the break_type, likely_cause, severity, and suggested_action are.\n"
+        f"ONLY RESPOND IN JSON with fields: matched_rule, break_type, likely_cause, severity, suggested_action."
     )
 
     message = client.messages.create(
@@ -106,26 +104,28 @@ if __name__ == "__main__":
     book_a = pd.read_csv('data/book_a.csv')
     book_b = pd.read_csv('data/book_b.csv')
 
-    # 新增：启动时加载 SOP 规则
-    sop_rules = load_sop_rules()
-    print("Loaded SOP Rules successfully.")
+# 1. 启动时加载切好的 SOP 规则卡片
+    sop_chunks = load_sop_chunks()
+    print(f"Loaded {len(sop_chunks)} SOP rule chunks successfully.")
 
     # Find breaks
     diff = find_breaks(book_a, book_b)
     print(f"Found {len(diff)} breaks.")
 
-    # Call API for each break
+# Call API for each break
     results = []
     for i, row in diff.iterrows():
         print(f"Analyzing break: {row['trade_id']}...")
-        parsed = call_api(row)
+        # 2. 把 sop_chunks 传给 call_api
+        parsed = call_api(row, sop_chunks)
         if parsed:
             results.append(parsed)
         else:
             results.append({
-                'break_type': 'Unknown',
-                'likely_cause': 'API parsing failed',
-                'severity': 'Unknown',
+                'matched_rule': 'Unknown',
+                'break_type': 'Unknown', 
+                'likely_cause': 'API parsing failed', 
+                'severity': 'Unknown', 
                 'suggested_action': 'Manual review required'
             })
 
