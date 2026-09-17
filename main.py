@@ -44,11 +44,23 @@ def find_breaks(a, b):
     diff = total[total['amount_x'] != total['amount_y']]
     return diff
 
+# 1. add：read SOP rule files
+def load_sop_rules():
+    """Reads Middle Office SOP rules from local text file."""
+    if os.path.exists('sop_rules.txt'):
+        with open('sop_rules.txt', 'r', encoding='utf-8') as f:
+            return f.read()
+    return "No official SOP rules provided."
 
 def call_api(row):
     """Calls the Anthropic API for a single break row and returns parsed JSON."""
     prompt = (
         f"You are a financial data analyst. Here is a trade reconciliation break: "
+        
+        # add in the prompt
+        f"【SOP RULES REFERENCE】\n"
+        f"{sop_rules}\n\n"
+        
         f"trade_id: {row['trade_id']}, "
         f"amount_x: {row['amount_x']}, "
         f"amount_y: {row['amount_y']}. "
@@ -80,6 +92,10 @@ if __name__ == "__main__":
     # Load input files
     book_a = pd.read_csv('data/book_a.csv')
     book_b = pd.read_csv('data/book_b.csv')
+
+    # 新增：启动时加载 SOP 规则
+    sop_rules = load_sop_rules()
+    print("Loaded SOP Rules successfully.")
 
     # Find breaks
     diff = find_breaks(book_a, book_b)
