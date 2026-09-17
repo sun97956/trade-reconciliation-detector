@@ -1,0 +1,24 @@
+[Rule 1 - HK Equity Withholding Tax / 港股预提税]
+Condition: Asset class is Hong Kong Equities (HK), local amount > broker amount, ratio difference ~15%.
+Description: Difference caused by unadjusted 15% dividend withholding tax.
+Action: Escalated to Tax Operations team to adjust dividend tax withholding.
+
+[Rule 2 - FX Immaterial Rounding / 外汇微小舍入]
+Condition: Asset class is FX or Currency Swap, absolute difference <= $5.00 USD.
+Description: Difference within allowable FX rounding threshold due to exchange rate precision.
+Action: Auto-approved for reconciliation matching, no manual action needed.
+
+[Rule 3 - Broker Unilateral Booking / 券商单边漏单]
+Condition: Local amount > 0, broker amount is 0 or NaN/missing.
+Description: Trade booked locally but missing on broker side due to settlement delay (T+1) or broker booking error.
+Action: Send automated exception notice to Broker Operations for confirmation.
+
+[Rule 4 - Commission / Fee Discrepancy / 交易佣金手续费差异]
+Condition: Asset class is Equities/Futures, absolute difference <= $100 USD.
+Description: Variance driven by exchange execution fees or commission tier misalignment between systems.
+Action: Assign to Trade Operations to re-verify broker fee schedule and post manual fee adjustment.
+
+[Rule 5 - Interest Rate Swap Day-Count Convention / 利率互换计息天数差异]
+Condition: Product is Interest Rate Swap (IRS), fixed/floating interest amount mismatch.
+Description: Mismatch caused by different day-count conventions (e.g., Actual/360 vs Actual/365) used by local risk system vs broker.
+Action: Re-route to Risk/Product Control to harmonize day-count parameters.
