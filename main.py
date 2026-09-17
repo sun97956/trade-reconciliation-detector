@@ -113,6 +113,9 @@ if __name__ == "__main__":
     diff = find_breaks(book_a, book_b)
     print(f"Found {len(diff)} breaks.")
 
+# 暂时把所有 chunks 拼回传给 call_api（保持原运行不中断）
+    sop_rules_text = "\n\n".join(sop_chunks)
+    
     # Call API for each break
     results = []
     for i, row in diff.iterrows():
