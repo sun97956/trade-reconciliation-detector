@@ -44,6 +44,13 @@ def find_breaks(a, b):
     diff = total[total['amount_x'] != total['amount_y']]
     return diff
 
+# 1. add：read SOP rule files
+def load_sop_rules():
+    """Reads Middle Office SOP rules from local text file."""
+    if os.path.exists('sop_rules.txt'):
+        with open('sop_rules.txt', 'r', encoding='utf-8') as f:
+            return f.read()
+    return "No official SOP rules provided."
 def load_sop_chunks():
     """读取 SOP 文件，并按规则切分为独立的卡片列表（Chunks）"""
     if not os.path.exists('sop_rules.txt'):
@@ -68,11 +75,11 @@ def call_api(row):
     """Calls the Anthropic API for a single break row and returns parsed JSON."""
     prompt = (
         f"You are a financial data analyst. Here is a trade reconciliation break: "
-        
+
         # add in the prompt
         f"【SOP RULES REFERENCE】\n"
         f"{sop_rules}\n\n"
-        
+
         f"trade_id: {row['trade_id']}, "
         f"amount_x: {row['amount_x']}, "
         f"amount_y: {row['amount_y']}. "
@@ -105,17 +112,14 @@ if __name__ == "__main__":
     book_a = pd.read_csv('data/book_a.csv')
     book_b = pd.read_csv('data/book_b.csv')
 
-# update：启动时将 SOP 规则解析为独立的 Chunks 列表
-    sop_chunks = load_sop_chunks()
-    print(f"Loaded {len(sop_chunks)} SOP rule chunks successfully.")
+    # 新增：启动时加载 SOP 规则
+    sop_rules = load_sop_rules()
+    print("Loaded SOP Rules successfully.")
 
     # Find breaks
     diff = find_breaks(book_a, book_b)
     print(f"Found {len(diff)} breaks.")
 
-# 暂时把所有 chunks 拼回传给 call_api（保持原运行不中断）
-    sop_rules_text = "\n\n".join(sop_chunks)
-    
     # Call API for each break
     results = []
     for i, row in diff.iterrows():
