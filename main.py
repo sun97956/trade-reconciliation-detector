@@ -44,13 +44,25 @@ def find_breaks(a, b):
     diff = total[total['amount_x'] != total['amount_y']]
     return diff
 
-# 1. add：read SOP rule files
-def load_sop_rules():
-    """Reads Middle Office SOP rules from local text file."""
-    if os.path.exists('sop_rules.txt'):
-        with open('sop_rules.txt', 'r', encoding='utf-8') as f:
-            return f.read()
-    return "No official SOP rules provided."
+def load_sop_chunks():
+    """读取 SOP 文件，并按规则切分为独立的卡片列表（Chunks）"""
+    if not os.path.exists('sop_rules.txt'):
+        return []
+    
+    with open('sop_rules.txt', 'r', encoding='utf-8') as f:
+        content = f.read()
+    
+    # 按 [Rule 进行分割
+    raw_parts = content.split('[Rule')
+    
+    chunks = []
+    for part in raw_parts:
+        if part.strip():
+            # 补回开头的 [Rule
+            chunk_text = '[Rule' + part.strip()
+            chunks.append(chunk_text)
+            
+    return chunks
 
 def call_api(row):
     """Calls the Anthropic API for a single break row and returns parsed JSON."""
