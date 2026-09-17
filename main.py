@@ -105,9 +105,9 @@ if __name__ == "__main__":
     book_a = pd.read_csv('data/book_a.csv')
     book_b = pd.read_csv('data/book_b.csv')
 
-    # 新增：启动时加载 SOP 规则
-    sop_rules = load_sop_rules()
-    print("Loaded SOP Rules successfully.")
+# update：启动时将 SOP 规则解析为独立的 Chunks 列表
+    sop_chunks = load_sop_chunks()
+    print(f"Loaded {len(sop_chunks)} SOP rule chunks successfully.")
 
     # Find breaks
     diff = find_breaks(book_a, book_b)
