@@ -65,7 +65,7 @@ def load_sop_chunks():
             
     return chunks
 
-def call_api(row):
+def call_api(row, sop_chunks):
     """Calls the Anthropic API for a single break row and returns parsed JSON."""
     prompt = (
         f"You are a financial data analyst. Here are the SOP rule chunks:\n"
